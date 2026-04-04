@@ -1,4 +1,6 @@
 package com.example.wewatch.data
+
+import com.example.wewatch.entity.MovieEntity
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
