@@ -1,6 +1,5 @@
 package com.example.wewatch
 
-// ui/search/SearchActivity.kt
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -10,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.wewatch.data.omdb.RetrofitClient
 import com.example.wewatch.databinding.ActivitySearchBinding
 import kotlinx.coroutines.launch
+import com.example.wewatch.BuildConfig
 
 class SearchActivity : AppCompatActivity() {
 

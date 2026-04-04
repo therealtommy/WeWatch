@@ -9,9 +9,7 @@ android {
     namespace = "com.example.wewatch"
     compileSdk = 36
 
-
     defaultConfig {
-
         applicationId = "com.example.wewatch"
         minSdk = 27
         targetSdk = 36
@@ -19,11 +17,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        val omdbApiKey = project.findProperty("OMDB_API_KEY") as? String ?: ""
+        buildConfigField("String", "OMDB_API_KEY", "\"$omdbApiKey\"")
     }
 
-    buildFeatures{
+    buildFeatures {
         viewBinding = true
+        compose = true
+        buildConfig = true
     }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -39,9 +42,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
     }
 }
 
