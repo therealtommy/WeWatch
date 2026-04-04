@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -28,7 +29,20 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+    private val addMovieLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            // Обновляем список после добавления
+            viewModel.loadWatchlist()
+        }
+    }
+
+// В обработчике FAB:
+    binding.fabAdd.setOnClickListener { addMovieLauncher.launch(Intent(this, AddActivity::class.java))
+    }
 }
+
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {

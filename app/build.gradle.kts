@@ -9,7 +9,9 @@ android {
     namespace = "com.example.wewatch"
     compileSdk = 36
 
+
     defaultConfig {
+
         applicationId = "com.example.wewatch"
         minSdk = 27
         targetSdk = 36
