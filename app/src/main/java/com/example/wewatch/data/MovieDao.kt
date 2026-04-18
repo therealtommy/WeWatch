@@ -1,17 +1,13 @@
 package com.example.wewatch.data
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
+import androidx.room.*
 import com.example.wewatch.entity.MovieEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MovieDao {
-    @Query("SELECT * FROM watchlist")
-    suspend fun getAll(): List<MovieEntity>
+    @Query("SELECT * FROM watchlist ORDER BY title ASC")
+    fun getAll(): Flow<List<MovieEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(movie: MovieEntity)

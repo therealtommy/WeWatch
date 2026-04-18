@@ -1,17 +1,27 @@
 package com.example.wewatch.data.omdb
 
+import com.google.gson.annotations.SerializedName
+
 data class OmdbSearchResponse(
-    val Search: List<OmdbMovie>?,
-    val totalResults: String,
-    val Response: String,
-    val Error: String?
+    @SerializedName("Search")
+    val search: List<OmdbMovie>?,
+    @SerializedName("totalResults")
+    val totalResults: String?,
+    @SerializedName("Response")
+    val response: String,
+    @SerializedName("Error")
+    val error: String?
 )
 
 data class OmdbMovie(
-    val Title: String,
-    val Year: String,
+    @SerializedName("Title")
+    val title: String,
+    @SerializedName("Year")
+    val year: String,
+    @SerializedName("imdbID")
     val imdbID: String,
-    val Type: String,
-    val Poster: String,
-    val Genre: String? = null
+    @SerializedName("Poster")
+    val posterUrl: String,
+    @SerializedName("Type")
+    val type: String? = null
 )

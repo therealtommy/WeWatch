@@ -9,6 +9,6 @@ data class MovieEntity(
     val imdbID: String,
     val title: String,
     val year: String,
-    val posterUrl: String?,
-    val genre: String? // для SearchScreen не используется, но можно сохранить
+    val posterUrl: String,
+    val type: String? = null
 )

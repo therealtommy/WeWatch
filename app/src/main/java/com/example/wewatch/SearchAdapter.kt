@@ -1,19 +1,17 @@
 package com.example.wewatch
 
-// ui/search/SearchAdapter.kt
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.wewatch.data.omdb.OmdbMovie
+import com.example.wewatch.databinding.ItemSearchResultBinding
 
 class SearchAdapter(
-    private val onItemLongClick: (OmdbMovie) -> Unit
+    private val onItemClick: (OmdbMovie) -> Unit
 ) : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
 
-    private var items: List<OmdbMovie> = emptyList()
+    private var items = listOf<OmdbMovie>()
 
     fun submitList(list: List<OmdbMovie>) {
         items = list
@@ -21,9 +19,8 @@ class SearchAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_search_result, parent, false)
-        return ViewHolder(view)
+        val binding = ItemSearchResultBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding, onItemClick)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -32,22 +29,16 @@ class SearchAdapter(
 
     override fun getItemCount() = items.size
 
-    inner class ViewHolder(itemView: android.view.View) : RecyclerView.ViewHolder(itemView) {
-        private val ivPoster = itemView.findViewById<ImageView>(R.id.ivPoster)
-        private val tvTitle = itemView.findViewById<TextView>(R.id.tvTitle)
-        private val tvYear = itemView.findViewById<TextView>(R.id.tvYear)
-        private val tvGenre = itemView.findViewById<TextView>(R.id.tvGenre)
-
+    class ViewHolder(
+        private val binding: ItemSearchResultBinding,
+        private val onItemClick: (OmdbMovie) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(movie: OmdbMovie) {
-            tvTitle.text = movie.Title
-            tvYear.text = movie.Year
-            tvGenre.text = movie.Genre ?: "Жанр не указан"
-            Glide.with(itemView).load(movie.Poster).placeholder(R.drawable.ic_placeholder).into(ivPoster)
-
-            itemView.setOnLongClickListener {
-                onItemLongClick(movie)
-                true
-            }
+            binding.tvTitle.text = movie.title
+            binding.tvYear.text = movie.year
+            binding.tvType.text = "Type: ${movie.type ?: "N/A"}"
+            Glide.with(binding.root).load(movie.posterUrl).into(binding.ivPoster)
+            itemView.setOnClickListener { onItemClick(movie) }
         }
     }
 }

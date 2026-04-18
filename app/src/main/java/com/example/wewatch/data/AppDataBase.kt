@@ -1,12 +1,12 @@
 package com.example.wewatch.data
 
-import com.example.wewatch.entity.MovieEntity
+import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import android.content.Context
+import com.example.wewatch.entity.MovieEntity
 
-@Database(entities = [MovieEntity::class], version = 1)
+@Database(entities = [MovieEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun movieDao(): MovieDao
 
@@ -19,7 +19,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "watchlist_db"
+                    "watch_database"
                 ).build()
                 INSTANCE = instance
                 instance

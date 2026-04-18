@@ -6,44 +6,50 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.wewatch.data.omdb.RetrofitClient
+import com.example.wewatch.data.AppDatabase
+import com.example.wewatch.data.MovieRepository
+import com.example.wewatch.data.omdb.OmdbMovie
 import com.example.wewatch.databinding.ActivitySearchBinding
 import kotlinx.coroutines.launch
-import com.example.wewatch.BuildConfig
 
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
     private lateinit var adapter: SearchAdapter
-
-    companion object {
-        const val EXTRA_QUERY = "query"
-        const val EXTRA_YEAR = "year"
-    }
+    private lateinit var repository: MovieRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val query = intent.getStringExtra(EXTRA_QUERY) ?: ""
-        val year = intent.getStringExtra(EXTRA_YEAR)
+        val database = AppDatabase.getInstance(this)
+        repository = MovieRepository(database.movieDao())
 
         setupRecyclerView()
-        performSearch(query, year)
+
+        // Получаем параметры поиска из Intent
+        val query = intent.getStringExtra("query") ?: ""
+        val year = intent.getStringExtra("year")
+        if (query.isNotEmpty()) {
+            performSearch(query, year)
+        } else {
+            binding.tvEmpty.visibility = android.view.View.VISIBLE
+            binding.tvEmpty.text = "Нет поискового запроса"
+        }
     }
 
     private fun setupRecyclerView() {
-        adapter = SearchAdapter { selectedMovie ->
+        adapter = SearchAdapter { movie ->
             // Возвращаем выбранный фильм в AddActivity
-            val resultIntent = Intent().apply {
-                putExtra(AddActivity.EXTRA_IMDB_ID, selectedMovie.imdbID)
-                putExtra(AddActivity.EXTRA_TITLE, selectedMovie.Title)
-                putExtra(AddActivity.EXTRA_YEAR, selectedMovie.Year)
-                putExtra(AddActivity.EXTRA_POSTER_URL, selectedMovie.Poster)
-                putExtra(AddActivity.EXTRA_GENRE, selectedMovie.Genre)
+            val intent = Intent().apply {
+                putExtra("imdbID", movie.imdbID)
+                putExtra("title", movie.title)
+                putExtra("year", movie.year)
+                putExtra("posterUrl", movie.posterUrl)
+                putExtra("type", movie.type)
             }
-            setResult(RESULT_OK, resultIntent)
+            setResult(RESULT_OK, intent)
             finish()
         }
         binding.rvSearchResults.layoutManager = LinearLayoutManager(this)
@@ -51,38 +57,24 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun performSearch(query: String, year: String?) {
-        if (query.isEmpty()) {
-            Toast.makeText(this, "Пустой запрос", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-
         binding.progressBar.visibility = android.view.View.VISIBLE
         lifecycleScope.launch {
             try {
-                val response = RetrofitClient.api.searchMovies(query, year, BuildConfig.OMDB_API_KEY)
-                binding.progressBar.visibility = android.view.View.GONE
-                if (response.Response == "True") {
-                    val movies = response.Search ?: emptyList()
-                    if (movies.isNotEmpty()) {
-                        adapter.submitList(movies)
-                        binding.tvEmpty.visibility = android.view.View.GONE
-                    } else {
-                        showEmpty()
-                    }
+                val results = repository.searchMovies(query, year)
+                adapter.submitList(results)
+                if (results.isEmpty()) {
+                    binding.tvEmpty.visibility = android.view.View.VISIBLE
+                    binding.tvEmpty.text = "Ничего не найдено"
                 } else {
-                    showEmpty(response.Error ?: "Ошибка")
+                    binding.tvEmpty.visibility = android.view.View.GONE
                 }
             } catch (e: Exception) {
+                binding.tvEmpty.visibility = android.view.View.VISIBLE
+                binding.tvEmpty.text = "Ошибка: ${e.message}"
+                Toast.makeText(this@SearchActivity, "Ошибка сети", Toast.LENGTH_SHORT).show()
+            } finally {
                 binding.progressBar.visibility = android.view.View.GONE
-                showEmpty("Ошибка сети: ${e.message}")
             }
         }
-    }
-
-    private fun showEmpty(message: String = "Ничего не найдено") {
-        binding.tvEmpty.text = message
-        binding.tvEmpty.visibility = android.view.View.VISIBLE
-        adapter.submitList(emptyList())
     }
 }
